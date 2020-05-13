@@ -12,8 +12,8 @@ import {
 import { User } from "./user.model";
 
 const POOL_DATA = {
-  UserPoolId: "ap-south-1_qDByvS3A4",
-  ClientId: "22pjosoesl31gt3c38cirsq9h5",
+  UserPoolId: "ap-south-1_J81MFHfks",
+  ClientId: "2jjp3aultj8m31rrfc59bt904d",
 };
 
 const userPool = new CognitoUserPool(POOL_DATA);
@@ -48,12 +48,9 @@ export class AuthService {
           this.authIsLoading.next(false);
           return;
         }
-        if (result) {
-          this.authDidFail.next(false);
-          this.authIsLoading.next(false);
-          console.log(result);
-          this.registeredUser = result.user;
-        }
+        this.authDidFail.next(false);
+        this.authIsLoading.next(false);
+        this.registeredUser = result.user;
       }
     );
     return;
@@ -62,8 +59,21 @@ export class AuthService {
     this.authIsLoading.next(true);
     const userData = {
       Username: username,
+      Pool: userPool,
     };
+    const cognitUser = new CognitoUser(userData);
+    cognitUser.confirmRegistration(code, true, (err, result) => {
+      if (err) {
+        this.authDidFail.next(true);
+        this.authIsLoading.next(false);
+        return;
+      }
+      this.authDidFail.next(false);
+      this.authIsLoading.next(false);
+      this.router.navigate(["/"]);
+    });
   }
+
   signIn(username: string, password: string): void {
     this.authIsLoading.next(true);
     const authData = {
