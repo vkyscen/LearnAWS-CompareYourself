@@ -95,21 +95,22 @@ export class CompareService {
   }
   onDeleteData() {
     this.dataLoadFailed.next(false);
-
-    this.http
-      .delete(
-        "https://96mex4cj0j.execute-api.ap-south-1.amazonaws.com/comp-dev/comparison",
-        {
-          headers: new Headers({
-            Authorization: "XXX",
-          }),
-        }
-      )
-      .subscribe(
-        (data) => {
-          console.log(data);
-        },
-        (error) => this.dataLoadFailed.next(true)
-      );
+    this.authService.getAuthenticatedUser().getSession((err, session) => {
+      this.http
+        .delete(
+          "https://96mex4cj0j.execute-api.ap-south-1.amazonaws.com/comp-dev/comparison",
+          {
+            headers: new Headers({
+              Authorization: session.getIdToken().getJwtToken(),
+            }),
+          }
+        )
+        .subscribe(
+          (data) => {
+            console.log(data);
+          },
+          (error) => this.dataLoadFailed.next(true)
+        );
+    });
   }
 }
